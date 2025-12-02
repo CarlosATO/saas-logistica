@@ -1,100 +1,103 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../services/supabaseClient'
 import { useNavigate, Link } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext' // Importamos el contexto
+import { useAuth } from '../context/AuthContext'
 
 const Login = () => {
   const navigate = useNavigate()
-  const { user } = useAuth() // Obtenemos el usuario actual del contexto
-
+  const { user } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
 
-  // 1. REDIRECCIÓN INTELIGENTE
-  // Si el usuario YA existe (está logueado), lo mandamos al Dashboard
-  // y no le dejamos ver la pantalla de login.
   useEffect(() => {
-    if (user) {
-      navigate('/dashboard')
-    }
+    if (user) navigate('/dashboard')
   }, [user, navigate])
 
   const handleLogin = async (e) => {
     e.preventDefault()
     setLoading(true)
     setErrorMsg('')
-
     try {
-      // 2. Lógica de Supabase para iniciar sesión
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) throw error
-
-      // Si todo sale bien, el AuthContext detectará el cambio automáticamente
-      // y la redirección del useEffect de arriba o del propio estado nos llevará,
-      // pero para forzarlo rápido:
-      navigate('/dashboard')
-
     } catch (error) {
-      setErrorMsg('❌ Credenciales incorrectas o error de conexión')
-      console.error(error)
+      setErrorMsg('Credenciales incorrectas o error de conexión')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div style={{ maxWidth: '400px', margin: '100px auto', padding: '30px', border: '1px solid #ddd', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }}>
-      <h2 style={{ textAlign: 'center', color: '#333' }}>🔑 Iniciar Sesión</h2>
-      
-      <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '20px' }}>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+      {/* Tarjeta Principal */}
+      <div className="max-w-md w-full bg-white rounded-xl shadow-2xl overflow-hidden p-8 space-y-8">
         
-        <div>
-          <label style={{ display: 'block', marginBottom: '5px', color: '#666' }}>Correo Electrónico</label>
-          <input 
-            type="email" 
-            required 
-            value={email} onChange={(e) => setEmail(e.target.value)}
-            style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
-          />
+        {/* Encabezado */}
+        <div className="text-center">
+          <h2 className="text-3xl font-extrabold text-gray-900">
+            Bienvenido
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Ingresa a tu portal empresarial
+          </p>
         </div>
 
-        <div>
-          <label style={{ display: 'block', marginBottom: '5px', color: '#666' }}>Contraseña</label>
-          <input 
-            type="password" 
-            required 
-            value={password} onChange={(e) => setPassword(e.target.value)}
-            style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
-          />
+        {/* Formulario */}
+        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Correo Electrónico
+              </label>
+              <input
+                id="email"
+                type="email"
+                required
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                placeholder="tu@correo.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Contraseña
+              </label>
+              <input
+                id="password"
+                type="password"
+                required
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                placeholder="••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {errorMsg && (
+            <div className="text-center text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+              {errorMsg}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors duration-200"
+          >
+            {loading ? 'Ingresando...' : 'Iniciar Sesión'}
+          </button>
+        </form>
+
+        {/* Pie de tarjeta */}
+        <div className="text-center">
+          <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500 text-sm">
+            ¿No tienes cuenta? Registra tu empresa aquí
+          </Link>
         </div>
-
-        {errorMsg && <div style={{ color: 'red', fontSize: '14px', textAlign: 'center' }}>{errorMsg}</div>}
-
-        <button 
-          type="submit" 
-          disabled={loading}
-          style={{ 
-            padding: '12px', 
-            background: '#333', 
-            color: 'white', 
-            border: 'none', 
-            borderRadius: '4px', 
-            cursor: 'pointer', 
-            fontSize: '16px' 
-          }}
-        >
-          {loading ? 'Ingresando...' : 'Entrar al Portal'}
-        </button>
-      </form>
-
-      <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '14px' }}>
-        ¿No tienes cuenta? <Link to="/register" style={{ color: '#007bff' }}>Registra tu empresa aquí</Link>
       </div>
     </div>
   )

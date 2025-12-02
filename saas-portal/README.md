@@ -18,3 +18,13 @@ If you are developing a production application, we recommend using TypeScript wi
 
 cd saas-portal
 npm run dev
+
+Environment configuration
+-------------------------
+This app uses Supabase. To run locally, create a `.env.local` file in the `saas-portal` folder with the following variables
+
+```
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+You can copy `.env.local.example` to `.env.local` and replace with your project values.

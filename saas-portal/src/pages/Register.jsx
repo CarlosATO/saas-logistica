@@ -25,25 +25,17 @@ const Register = () => {
     setMsg('')
 
     try {
-      // 1. Registrar al usuario
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
-        options: {
-          data: {
-            full_name: formData.fullName, 
-          }
-        }
+        options: { data: { full_name: formData.fullName } }
       })
 
       if (authError) throw authError
       if (!authData.user) throw new Error("No se pudo crear el usuario")
 
-      // --- AQUÍ ESTÁ EL CAMBIO IMPORTANTE ---
-      
-      // 2. Verificamos si el Trigger ya le asignó una empresa (por invitación)
-      // Damos un pequeño respiro de 500ms para asegurar que el trigger de BD terminó
-      await new Promise(resolve => setTimeout(resolve, 500))
+      // Esperar al trigger
+      await new Promise(resolve => setTimeout(resolve, 1000))
 
       const { data: profile } = await supabase
         .from('profiles')
@@ -52,13 +44,8 @@ const Register = () => {
         .single()
 
       if (profile && profile.organization_id) {
-        // CASO A: ¡FUE INVITADO!
-        // No creamos empresa. Le avisamos y redirigimos.
         setMsg('👋 ¡Te detectamos una invitación! Te uniste a tu equipo existente.')
-        
       } else {
-        // CASO B: USUARIO NUEVO (Sin invitación)
-        // Creamos la empresa nueva como siempre
         const { data: orgData, error: orgError } = await supabase
           .from('organizations')
           .insert([{ name: formData.companyName }])
@@ -67,24 +54,15 @@ const Register = () => {
 
         if (orgError) throw orgError
 
-        // Lo hacemos admin de su nueva empresa
-        const { error: profileError } = await supabase
+        await supabase
           .from('profiles')
-          .update({ 
-            organization_id: orgData.id,
-            role: 'admin' 
-          })
+          .update({ organization_id: orgData.id, role: 'admin' })
           .eq('id', authData.user.id)
-
-        if (profileError) throw profileError
 
         setMsg('✅ Empresa registrada con éxito.')
       }
 
-      // Redirigir en ambos casos
-      setTimeout(() => {
-        navigate('/dashboard')
-      }, 2000)
+      setTimeout(() => navigate('/dashboard'), 2000)
 
     } catch (error) {
       console.error(error)
@@ -95,61 +73,71 @@ const Register = () => {
   }
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ddd', borderRadius: '8px' }}>
-      <h2 style={{ textAlign: 'center' }}>🚀 Registro</h2>
-      
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-12">
+      <div className="max-w-md w-full bg-white rounded-xl shadow-2xl overflow-hidden p-8 space-y-6">
         
-        <div>
-          <label>Nombre de la Empresa</label>
-          <input 
-            type="text" name="companyName" required 
-            placeholder="Si tienes invitación, este nombre se ignorará"
-            value={formData.companyName} onChange={handleChange}
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-          />
-          <small style={{color: '#666', fontSize: '11px'}}>
-            * Si te invitaron a un equipo, te uniremos automáticamente.
-          </small>
+        <div className="text-center">
+          <h2 className="text-3xl font-extrabold text-gray-900">Crear Cuenta</h2>
+          <p className="mt-2 text-sm text-gray-600">Comienza a gestionar tu empresa hoy</p>
         </div>
 
-        <div>
-          <label>Tu Nombre Completo</label>
-          <input 
-            type="text" name="fullName" required 
-            value={formData.fullName} onChange={handleChange}
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-          />
+        <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Nombre de la Empresa</label>
+            <input 
+              type="text" name="companyName" required 
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej. Tech Solutions"
+              value={formData.companyName} onChange={handleChange}
+            />
+            <p className="mt-1 text-xs text-gray-500">* Si tienes invitación, este nombre se ignorará.</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Nombre Completo</label>
+            <input 
+              type="text" name="fullName" required 
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              value={formData.fullName} onChange={handleChange}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Correo Electrónico</label>
+            <input 
+              type="email" name="email" required 
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              value={formData.email} onChange={handleChange}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Contraseña</label>
+            <input 
+              type="password" name="password" required 
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              value={formData.password} onChange={handleChange}
+            />
+          </div>
+
+          <button type="submit" disabled={loading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors">
+            {loading ? 'Procesando...' : 'Registrar Empresa'}
+          </button>
+
+        </form>
+
+        {msg && (
+          <div className={`p-3 rounded text-center text-sm font-bold ${msg.includes('Error') ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
+            {msg}
+          </div>
+        )}
+
+        <div className="text-center text-sm">
+          <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+            ¿Ya tienes cuenta? Ingresa aquí
+          </Link>
         </div>
-
-        <div>
-          <label>Correo Electrónico</label>
-          <input 
-            type="email" name="email" required 
-            value={formData.email} onChange={handleChange}
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-          />
-        </div>
-
-        <div>
-          <label>Contraseña</label>
-          <input 
-            type="password" name="password" required 
-            value={formData.password} onChange={handleChange}
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-          />
-        </div>
-
-        <button type="submit" disabled={loading} style={{ padding: '10px', background: '#007bff', color: 'white', border: 'none', cursor: 'pointer' }}>
-          {loading ? 'Procesando...' : 'Registrarse'}
-        </button>
-
-      </form>
-
-      {msg && <p style={{ marginTop: '15px', textAlign: 'center', fontWeight: 'bold', color: msg.includes('Error') ? 'red' : 'green' }}>{msg}</p>}
-
-      <div style={{ marginTop: '20px', textAlign: 'center' }}>
-        <Link to="/login">¿Ya tienes cuenta? Ingresa aquí</Link>
       </div>
     </div>
   )
