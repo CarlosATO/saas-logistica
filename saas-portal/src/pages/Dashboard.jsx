@@ -40,6 +40,34 @@ const Dashboard = () => {
     fetchProfileData()
   }, [user])
 
+  const handleAppClick = async (app) => {
+    if (app.status === 'coming_soon') {
+      alert('🚧 Este módulo está en construcción')
+      return
+    }
+
+    try {
+      // 1. Obtenemos la sesión actual del usuario en el Portal
+      const { data: { session } } = await supabase.auth.getSession()
+
+      if (!session) {
+        navigate('/login')
+        return
+      }
+
+      // 2. Construimos la URL de destino con los tokens en el Hash (#)
+      const targetUrl = new URL(app.url, 'http://localhost:5174') // Base URL del módulo
+      targetUrl.hash = `access_token=${session.access_token}&refresh_token=${session.refresh_token}&type=recovery`
+
+      // 3. Redirigimos al usuario (fuera del Portal, hacia el Módulo)
+      window.location.href = targetUrl.toString()
+
+    } catch (error) {
+      console.error('Error manejando redirección de app:', error)
+      alert('Error al intentar abrir la aplicación. Intenta de nuevo más tarde.')
+    }
+  }
+
   const handleLogout = async () => { await signOut(); navigate('/login') }
 
   return (
@@ -85,7 +113,7 @@ const Dashboard = () => {
           {apps.map((app) => (
             <div 
               key={app.id} 
-              onClick={() => app.status !== 'coming_soon' && alert(`Ir a ${app.name}`)}
+              onClick={() => handleAppClick(app)}
               className={`group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer relative overflow-hidden ${app.status === 'coming_soon' ? 'opacity-70 grayscale' : ''}`}
             >
               <div className={`${app.color} w-14 h-14 rounded-2xl flex items-center justify-center text-3xl text-white mb-4 shadow-md group-hover:scale-110 transition-transform duration-300`}>
