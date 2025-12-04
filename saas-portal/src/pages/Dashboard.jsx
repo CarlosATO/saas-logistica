@@ -14,7 +14,13 @@ const Dashboard = () => {
       id: 'rrhh', name: 'Recursos Humanos', desc: 'Nóminas y empleados', icon: '👥', status: 'active', url: import.meta.env.VITE_RRHH_URL, color: 'bg-blue-500' 
     },
     { 
-      id: 'logis', name: 'Logística', desc: 'Flota y rutas', icon: '🚚', status: 'coming_soon', url: '/logistica', color: 'bg-orange-500' 
+      id: 'logis', 
+      name: 'Logística y Bodega', 
+      desc: 'Control de inventario, activos y EPP', 
+      icon: '📦', 
+      status: 'active', 
+      url: import.meta.env.VITE_LOGISTICA_URL, 
+      color: 'bg-orange-500'
     },
     { 
       id: 'settings', name: 'Configuración', desc: 'Datos de empresa', icon: '⚙️', status: 'active', url: '/settings', color: 'bg-gray-600' 
