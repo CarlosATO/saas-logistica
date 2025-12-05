@@ -1,0 +1,78 @@
+%% ARCHITECTURE.mmd - Diagrama de carpetas (Mermaid)
+graph TD
+  A["SaaS - root"]
+
+  A --> LOG["saas-logistica"]
+  A --> POR["saas-portal"]
+  A --> RRH["saas-rrhh"]
+
+  subgraph LOG_sub [saas-logistica]
+    LOG_cfg[.gitignore / package.json / vite.config.js]
+    LOG_public[public]
+    LOG_src[src]
+  end
+
+  subgraph LOG_src_sub [saas-logistica/src]
+    LOG_assets[assets]
+    LOG_components[components]
+    LOG_context[context]
+    LOG_pages[pages]
+    LOG_services[services]
+  end
+
+  LOG --> LOG_cfg
+  LOG --> LOG_public
+  LOG --> LOG_src
+  LOG_src --> LOG_assets
+  LOG_src --> LOG_components
+  LOG_src --> LOG_context
+  LOG_src --> LOG_pages
+  LOG_src --> LOG_services
+
+  subgraph POR_sub [saas-portal]
+    POR_cfg[.env.local / package.json / vite.config.js]
+    POR_public[public]
+    POR_src[src]
+  end
+
+  subgraph POR_src_sub [saas-portal/src]
+    POR_assets[assets]
+    POR_components[components]
+    POR_context[context]
+    POR_pages[pages]
+    POR_services[services]
+  end
+
+  POR --> POR_cfg
+  POR --> POR_public
+  POR --> POR_src
+  POR_src --> POR_assets
+  POR_src --> POR_components
+  POR_src --> POR_context
+  POR_src --> POR_pages
+  POR_src --> POR_services
+
+  subgraph RRH_sub [saas-rrhh]
+    RRH_cfg[.gitignore / package.json / vite.config.js]
+    RRH_public[public]
+    RRH_src[src]
+  end
+
+  subgraph RRH_src_sub [saas-rrhh/src]
+    RRH_assets[assets]
+    RRH_components[components]
+    RRH_context[context]
+    RRH_hooks[hooks]
+    RRH_pages[pages]
+    RRH_services[services]
+  end
+
+  RRH --> RRH_cfg
+  RRH --> RRH_public
+  RRH --> RRH_src
+  RRH_src --> RRH_assets
+  RRH_src --> RRH_components
+  RRH_src --> RRH_context
+  RRH_src --> RRH_hooks
+  RRH_src --> RRH_pages
+  RRH_src --> RRH_services
