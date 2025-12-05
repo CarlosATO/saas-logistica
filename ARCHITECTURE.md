@@ -1,0 +1,67 @@
+# Arquitectura del proyecto (carpetas)
+
+Ruta base: `/Users/carlosalegria/Desktop/SaaS`
+
+- .git/
+- .gitignore
+- package.json
+- package-lock.json
+- node_modules/
+- saas-logistica/
+  - .git/
+  - .gitignore
+  - .env.local
+  - Readme_del_proyecto/
+  - index.html
+  - package.json
+  - package-lock.json
+  - postcss.config.js
+  - tailwind.config.js
+  - vite.config.js
+  - node_modules/
+  - public/
+  - src/
+    - assets/
+    - components/
+    - context/
+    - pages/
+    - services/
+- saas-portal/
+  - .env.local
+  - .env.local.example
+  - .gitignore
+  - index.html
+  - package.json
+  - package-lock.json
+  - postcss.config.js
+  - tailwind.config.js
+  - vite.config.js
+  - node_modules/
+  - public/
+  - src/
+    - assets/
+    - components/
+    - context/
+    - pages/
+    - services/
+- saas-rrhh/
+  - .git/
+  - .gitignore
+  - .env.local
+  - index.html
+  - package.json
+  - package-lock.json
+  - postcss.config.js
+  - tailwind.config.js
+  - vite.config.js
+  - node_modules/
+  - public/
+  - src/
+    - assets/
+    - components/
+    - context/
+    - hooks/
+    - pages/
+    - services/
+
+> Nota: Se han eliminado carpetas duplicadas previamente copiadas dentro de `saas-logistica`.
