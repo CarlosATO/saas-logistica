@@ -41,10 +41,16 @@ export const AuthProvider = ({ children }) => {
         }
       }
 
-      // 3. Si falla, expulsar al Portal
-      // Si no hay sesión y no vienen tokens en la URL, redirigimos al Portal Central (puerto 5173)
-      window.location.href = import.meta.env.VITE_PORTAL_URL || 'http://localhost:5173'; 
-      setLoading(false); 
+      // 3. Si no hay sesión y no vienen tokens en la URL, redirigimos al Portal Central
+      // Construimos la URL de retorno para que el Portal pueda redirigir de vuelta después del login.
+      const portalBase = import.meta.env.VITE_PORTAL_URL || 'http://localhost:5173'
+      const returnTo = window.location.href
+      const separator = portalBase.includes('?') ? '&' : '?'
+      const portalUrl = `${portalBase}${separator}returnTo=${encodeURIComponent(returnTo)}`
+
+      // Usamos replace() para no dejar la URL actual en el historial y evitamos setLoading(false)
+      // porque estamos navegando fuera de esta app.
+      window.location.replace(portalUrl)
     }
 
     handleSSO()
